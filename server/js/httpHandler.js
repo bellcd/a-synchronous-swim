@@ -13,8 +13,20 @@ module.exports.initialize = (queue) => {
 };
 
 module.exports.router = (req, res, next = ()=>{}) => {
-  console.log('Serving request type ' + req.method + ' for url ' + req.url);
+  console.log('req: ', req);
+
+  const { method, url } = req;
+
+  console.log('Serving request type ' + method + ' for url ' + url);
+
+  let parcel;
+  const directions = ['up', 'down', 'left', 'right'];
+  if (req.method === 'GET') {
+    parcel = directions[Math.floor(Math.random(3))];
+    console.log('parcel: ', parcel);
+  }
+
   res.writeHead(200, headers);
-  res.end();
+  res.end(parcel);
   next(); // invoke next() at the end of a request to help with testing!
 };
