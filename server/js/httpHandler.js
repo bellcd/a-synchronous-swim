@@ -22,8 +22,7 @@ module.exports.router = (req, res, next = ()=>{}) => {
   let parcel;
   const directions = ['up', 'down', 'left', 'right'];
   if (req.method === 'GET') {
-    parcel = directions[Math.floor(Math.random(3))];
-    console.log('parcel: ', parcel);
+    parcel = directions[Math.floor(Math.random() * 4)];
   }
 
   res.writeHead(200, headers);
