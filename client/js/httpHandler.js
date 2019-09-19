@@ -11,8 +11,8 @@
       url: serverUrl,
       dataType: 'text',
       success: (data) => {
-        console.log(`${data}`);
-        SwimTeam.move(data);
+        // console.log(`${data}`);
+        SwimTeam.move(data); // how is the SwimTeam object available in this scope??
       },
       error: (err) => {
         console.log(err)
