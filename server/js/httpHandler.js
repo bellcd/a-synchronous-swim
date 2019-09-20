@@ -17,23 +17,43 @@ module.exports.initialize = (queue) => {
 };
 
 module.exports.router = (req, res, next = ()=>{}) => {
-  // console.log('req: ', req);
-
   const { method, url } = req;
 
   console.log('Serving request type ' + method + ' for url ' + url);
 
   let parcel;
   const directions = ['up', 'down', 'left', 'right'];
-  if (req.method === 'GET') {
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200, headers);
+    res.end();
+  } else if (req.method === 'GET' && url === '/') {
     // parcel = fromMessageQueue.dequeue();
     // parcel = parcel ? parcel : directions[Math.floor(Math.random() * 4)];
 
+    res.writeHead(200, headers);
     parcel = fromMessageQueue.dequeue();
     parcel = parcel ? parcel : directions[Math.floor(Math.random() * 4)];
-  }
+    res.end(parcel);
+  } else if (req.method === 'GET' && url === '/background.jpg') {
+    let filePath = path.join(__dirname, 'background.jpg');
 
-  res.writeHead(200, headers);
-  res.end(parcel);
+    // the NODE.js docs seemed to not recommend using fs.access in this way ... alternative?? https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_access_path_mode_callback
+    fs.access(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, headers);
+        console.log(err);
+        res.end(parcel);
+      } else {
+        const stream = fs.createReadStream(filePath); // why does this not work with the syntax from line 10??
+
+        res.writeHead(200,
+          Object.assign({
+            'Content-Type': 'image/jpg'
+          }, headers));
+        stream.pipe(res);
+      }
+    });
+  }
   next(); // invoke next() at the end of a request to help with testing!
 };
