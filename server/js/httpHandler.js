@@ -30,30 +30,27 @@ module.exports.router = (req, res, next = ()=>{}) => {
     res.writeHead(200, headers);
     res.end();
   } else if (req.method === 'GET' && url === '/') {
-    // parcel = fromMessageQueue.dequeue();
-    // parcel = parcel ? parcel : directions[Math.floor(Math.random() * 4)];
-
     res.writeHead(200, headers);
     parcel = fromMessageQueue.dequeue();
     parcel = parcel ? parcel : directions[Math.floor(Math.random() * 4)];
     res.end(parcel);
   } else if (req.method === 'GET' && url === '/background.jpg') {
-    // let filePath = path.join(__dirname, 'background.jpg');
-
     let filePath = module.exports.backgroundImageFile;
 
-    // the NODE.js docs seemed to not recommend using fs.access in this way ... alternative?? https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_access_path_mode_callback
-    fs.access(filePath, (err) => {
-      if (err) {
+    // try {
+    //     res.writeHead(200,
+    //       Object.assign({
+    //         'Content-Type': 'image/jpg'
+    //       }, headers));
+    //     stream.pipe(res);
+    // } catch (e) {
+    //   res.writeHead(404, headers);
+    //   res.end();
+    // }
 
-        console.log('entering the error if');
-        res.writeHead(404, headers);
-
-        // console.log(err);
-        // res.statusCode = 404;
-        res.end(parcel);
-        console.log('res in routing: ', res);
-      } else {
+    try {
+      if (fs.existsSync(filePath)) {
+        //file exists
         const stream = fs.createReadStream(filePath); // why does this not work with the syntax from line 10??
 
         res.writeHead(200,
@@ -61,11 +58,33 @@ module.exports.router = (req, res, next = ()=>{}) => {
             'Content-Type': 'image/jpg'
           }, headers));
         stream.pipe(res);
+      } else {
+        res.writeHead(404, headers);
+        res.end();
       }
-    });
+    } catch(err) {
+      console.error(err)
+    }
+
+    // the NODE.js docs seemed to not recommend using fs.access in this way ... alternative?? was getting an error when tried to do this with a try...catch block
+    // https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_access_path_mode_callback
+    //   const stream = fs.createReadStream(filePath); // why does this not work with the syntax from line 10??
+
+    // POSTMAN working but unit test not working with fs.access... not sure why ...
+    // fs.access(filePath, (err) => {
+    //   res.writeHead(101, headers);
+    //   if (err) {
+    //     res.writeHead(404, headers);
+    //     res.end();
+    //   } else {
+    //     res.writeHead(200,
+    //       Object.assign({
+    //         'Content-Type': 'image/jpg'
+    //       }, headers));
+    //     stream.pipe(res);
+    //   }
+    // });
   }
+
   next(); // invoke next() at the end of a request to help with testing!
 };
-
-
-// the callback for the router() in the relevant unit test is executing before the router code... next step is to search test framework documentation for this issue
