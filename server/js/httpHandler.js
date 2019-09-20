@@ -7,7 +7,9 @@ const multipart = require('./multipartUtils');
 const fromMessageQueue = require('./messageQueue.js');
 
 // Path for the background image ///////////////////////
-module.exports.backgroundImageFile = path.join('.', 'background.jpg');
+// module.exports.backgroundImageFile = path.join('.', 'background.jpg');
+
+module.exports.backgroundImageFile = path.join(__dirname, 'background.jpg');
 ////////////////////////////////////////////////////////
 
 // not sure what this is for ?? ie, why does this exist here, if the messageQueue module already has prebuilt functions for enqueueing and dequeueing ...
@@ -36,14 +38,21 @@ module.exports.router = (req, res, next = ()=>{}) => {
     parcel = parcel ? parcel : directions[Math.floor(Math.random() * 4)];
     res.end(parcel);
   } else if (req.method === 'GET' && url === '/background.jpg') {
-    let filePath = path.join(__dirname, 'background.jpg');
+    // let filePath = path.join(__dirname, 'background.jpg');
+
+    let filePath = module.exports.backgroundImageFile;
 
     // the NODE.js docs seemed to not recommend using fs.access in this way ... alternative?? https://nodejs.org/dist/latest-v10.x/docs/api/fs.html#fs_fs_access_path_mode_callback
     fs.access(filePath, (err) => {
       if (err) {
+
+        console.log('entering the error if');
         res.writeHead(404, headers);
-        console.log(err);
+
+        // console.log(err);
+        // res.statusCode = 404;
         res.end(parcel);
+        console.log('res in routing: ', res);
       } else {
         const stream = fs.createReadStream(filePath); // why does this not work with the syntax from line 10??
 
@@ -57,3 +66,6 @@ module.exports.router = (req, res, next = ()=>{}) => {
   }
   next(); // invoke next() at the end of a request to help with testing!
 };
+
+
+// the callback for the router() in the relevant unit test is executing before the router code... next step is to search test framework documentation for this issue

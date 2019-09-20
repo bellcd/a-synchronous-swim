@@ -35,10 +35,12 @@ describe('server responses', () => {
     let {req, res} = server.mock('/background.jpg', 'GET');
 
     httpHandler.router(req, res, () => {
+      console.log('res in unit test: ', res);
       expect(res._responseCode).to.equal(404);
       expect(res._ended).to.equal(true);
       done();
     });
+
   });
 
   xit('should respond with 200 to a GET request for a present background image', (done) => {
