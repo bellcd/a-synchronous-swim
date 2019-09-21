@@ -84,6 +84,43 @@ module.exports.router = (req, res, next = ()=>{}) => {
     //     stream.pipe(res);
     //   }
     // });
+  } else if (method === 'POST' && url === '/background.jpg') {
+
+    res.writeHead(200,
+      Object.assign({
+        'Content-type': 'image/jpg'
+      }, headers));
+
+    // const imageData = fs.createWriteStream();
+    // req.pipe(imageData);
+
+    // console.log('imageData: ', imageData);
+
+    req.on('error', (err) => {
+      console.log(err);
+      // should also send some kind of server response noting the error
+    });
+
+    let imageData = [];
+    req.on('data', (chunk) => {
+      imageData.push(chunk);
+    });
+    req.on('end', () => {
+      imageData = Buffer.concat(imageData);
+
+      fs.writeFile(path.join(__dirname, 'test.jpg'), imageData, (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('image saved successfully!');
+        }
+      })
+      // let stream = fs.createWriteStream(path.join(__dirname, 'test.jpg'));
+      console.log('imageData: ', imageData);
+      res.end();
+    })
+
+
   }
 
   next(); // invoke next() at the end of a request to help with testing!
