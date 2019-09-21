@@ -2,9 +2,6 @@
 
   const serverUrl = 'http://127.0.0.1:3000';
 
-  //
-  // TODO: build the swim command fetcher here
-  //
   const getNewSwimCommands = () => {
     $.ajax({
       type: 'GET',
@@ -14,12 +11,15 @@
         // console.log(`${data}`);
         SwimTeam.move(data); // how is the SwimTeam object available in this scope??
       },
+      complete: (data) => {
+        setTimeout(getNewSwimCommands, 1500);
+      },
       error: (err) => {
         console.log(err)
       }
     });
   }
-  window.setInterval(getNewSwimCommands, 1500);
+  setTimeout(getNewSwimCommands, 1500);
 
   /////////////////////////////////////////////////////////////////////
   // The ajax file uplaoder is provided for your convenience!
@@ -32,7 +32,7 @@
     $.ajax({
       type: 'POST',
       data: formData,
-      url: 'FILL_ME_IN',
+      url: serverUrl + '/background.jpg',
       cache: false,
       contentType: false,
       processData: false,
